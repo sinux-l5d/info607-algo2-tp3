@@ -1,21 +1,21 @@
 #ifndef _ARBRE_H_
 #define _ARBRE_H_
+#include "obstacles.h"
 
 /* A vous de changer cela. */
-typedef int Donnee;
+typedef Obstacle Donnee;
 
 /**
  * Copie une donnée dans une autre. Cette fonction est utile lorsque
  * le type Donnee est complexe et que l'opérateur d'affectation du C
  * ne fonctionne pas bien.
  *
- * @param d1 un pointeur vers la première donnée à recopier.  
+ * @param d1 un pointeur vers la première donnée à recopier.
  *
  * @param d2 un pointeur vers la deuxième donnée, qui sera écrasée et
  * prendra les valeurs de d1.
  */
-extern void CopierDonnees( Donnee* d1, Donnee* d2 );
-
+extern void CopierDonnees(Donnee *d1, Donnee *d2);
 
 /*****************************************************************************/
 /* Les arbres */
@@ -27,12 +27,12 @@ extern void CopierDonnees( Donnee* d1, Donnee* d2 );
  * droit.  On pourrait aussi stocker le noeud père ici, mais on ne
  * s'en servira pas dans les algorithmes développés.
  */
-typedef struct SNoeud { 
-  Donnee data; 
-  struct SNoeud* gauche; 
-  struct SNoeud* droit; 
+typedef struct SNoeud
+{
+  Donnee data;
+  struct SNoeud *gauche;
+  struct SNoeud *droit;
 } Noeud;
-
 
 /**
  * Un arbre binaire est un noeud appelé racine.  On utilisera le type
@@ -41,19 +41,17 @@ typedef struct SNoeud {
  */
 typedef Noeud Arbre;
 
-
-
 /**
  * @return l'arbre vide.
  */
-extern Arbre* ArbreVide();
+extern Arbre *ArbreVide();
 
 /**
  * Détruit un arbre et désalloue tous ses éléments alloués.
  *
  * @param A un pointeur vers un arbre valide.
  */
-extern void Detruire( Arbre* A );
+extern void Detruire(Arbre *A);
 
 /**
  * Crée et retourne un arbre avec un seul noeud qui recopie la donnée
@@ -64,7 +62,7 @@ extern void Detruire( Arbre* A );
  * @return un pointeur vers l'arbre créé (ie. un pointeur vers sa
  * racine).
  */
-extern Arbre* Creer0( Donnee* ptr_d );
+extern Arbre *Creer0(Donnee *ptr_d);
 
 /**
  * Crée et retourne un arbre qui l'union de deux sous-arbres plus un
@@ -81,14 +79,14 @@ extern Arbre* Creer0( Donnee* ptr_d );
  * @return un pointeur vers l'arbre créé (ie. un pointeur vers sa
  * racine).
  */
-extern Arbre* Creer2( Donnee* ptr_d, Arbre* G, Arbre* D );
+extern Arbre *Creer2(Donnee *ptr_d, Arbre *G, Arbre *D);
 
 /**
  * Retourne le noeud racine de A (éventuellement NULL si arbre vide).
  *
  * @param A un pointeur vers un arbre valide.
  */
-extern Noeud* Racine( Arbre* A );
+extern Noeud *Racine(Arbre *A);
 
 /**
  * @return le noeud fils gauche de N (éventuellement NULL si N n'avait
@@ -96,7 +94,7 @@ extern Noeud* Racine( Arbre* A );
  *
  * @param N un pointeur vers un noeud valide.
  */
-extern Noeud* Gauche( Noeud* N );
+extern Noeud *Gauche(Noeud *N);
 
 /**
  * Modifie le noeud N de façon à ce que SG devienne sous nouveau
@@ -105,7 +103,7 @@ extern Noeud* Gauche( Noeud* N );
  * @param N un pointeur vers un noeud valide.
  * @param SG le nouveau sous-arbre, éventuellement vide ou réduit à un noeud.
  */
-extern void ModifieGauche( Noeud* N, Arbre* SG );
+extern void ModifieGauche(Noeud *N, Arbre *SG);
 
 /**
  * @return le noeud fils droit de N (éventuellement NULL si N n'avait
@@ -113,7 +111,7 @@ extern void ModifieGauche( Noeud* N, Arbre* SG );
  *
  * @param N un pointeur vers un noeud valide.
  */
-extern Noeud* Droit( Noeud* N );
+extern Noeud *Droit(Noeud *N);
 
 /**
  * Modifie le noeud N de façon à ce que SD devienne sous nouveau
@@ -122,8 +120,7 @@ extern Noeud* Droit( Noeud* N );
  * @param N un pointeur vers un noeud valide.
  * @param SD le nouveau sous-arbre, éventuellement vide ou réduit à un noeud.
  */
-extern void ModifieDroit( Noeud* N, Arbre* SD );
-
+extern void ModifieDroit(Noeud *N, Arbre *SD);
 
 /**
  * Permet la lecture et l'écriture dans la donnée associée au noeud N.
@@ -132,7 +129,8 @@ extern void ModifieDroit( Noeud* N, Arbre* SD );
  *
  * @param N un pointeur vers un noeud valide.
  */
-extern Donnee* Valeur( Noeud* N );
+extern Donnee *Valeur(Noeud *N);
 
+extern Arbre *KDT_Creer(Donnee *T, int i, int j, int a);
 
 #endif

@@ -1,27 +1,25 @@
 #include <stdlib.h>
 #include "arbre.h"
 
-
 /**
  * Copie une donnée dans une autre. Cette fonction est utile lorsque
  * le type ValType est complexe et que l'opérateur d'affectation du C
  * ne fonctionne pas bien.
  *
- * @param d1 un pointeur vers la première donnée à recopier.  
+ * @param d1 un pointeur vers la première donnée à recopier.
  *
  * @param d2 un pointeur vers la deuxième donnée, qui sera écrasée et
  * prendra les valeurs de d1.
  */
-void CopierDonnees( Donnee* d1, Donnee* d2 )
+void CopierDonnees(Donnee *d1, Donnee *d2)
 {
   *d2 = *d1;
 }
 
-
 /**
  * @return l'arbre vide.
  */
-Arbre* ArbreVide()
+Arbre *ArbreVide()
 {
   return NULL;
 }
@@ -31,14 +29,14 @@ Arbre* ArbreVide()
  *
  * @param A un pointeur vers un arbre valide.
  */
-void Detruire( Arbre* A )
+void Detruire(Arbre *A)
 {
-  if ( A != ArbreVide() )
-    {
-      Detruire( A->gauche );
-      Detruire( A->droit );
-      free( A );
-    }
+  if (A != ArbreVide())
+  {
+    Detruire(A->gauche);
+    Detruire(A->droit);
+    free(A);
+  }
 }
 
 /**
@@ -50,11 +48,10 @@ void Detruire( Arbre* A )
  * @return un pointeur vers l'arbre créé (ie. un pointeur vers sa
  * racine).
  */
-extern Arbre* Creer0( Donnee* ptr_d )
+extern Arbre *Creer0(Donnee *ptr_d)
 {
-  return Creer2( ptr_d, ArbreVide(), ArbreVide() );
+  return Creer2(ptr_d, ArbreVide(), ArbreVide());
 }
-
 
 /**
  * Crée et retourne un arbre qui l'union de deux sous-arbres plus un
@@ -71,15 +68,14 @@ extern Arbre* Creer0( Donnee* ptr_d )
  * @return un pointeur vers l'arbre créé (ie. un pointeur vers sa
  * racine).
  */
-Arbre* Creer2( Donnee* ptr_d, Arbre* G, Arbre* D )
+Arbre *Creer2(Donnee *ptr_d, Arbre *G, Arbre *D)
 {
-  Noeud* racine = (Noeud*) malloc( sizeof(Noeud) );
-  CopierDonnees( ptr_d, &racine->data );
+  Noeud *racine = (Noeud *)malloc(sizeof(Noeud));
+  CopierDonnees(ptr_d, &racine->data);
   racine->gauche = G;
   racine->droit = D;
   return racine;
 }
-
 
 /**
  * Retourne le noeud racine de A (éventuellement NULL si arbre vide).
@@ -89,11 +85,10 @@ Arbre* Creer2( Donnee* ptr_d, Arbre* G, Arbre* D )
  *
  * @param A un pointeur vers un arbre valide.
  */
-extern Noeud* Racine( Arbre* A )
+extern Noeud *Racine(Arbre *A)
 {
   return A;
 }
-
 
 /**
  * @return le noeud fils gauche de N (éventuellement NULL si N n'avait
@@ -101,7 +96,7 @@ extern Noeud* Racine( Arbre* A )
  *
  * @param N un pointeur vers un noeud valide.
  */
-Noeud* Gauche( Noeud* N )
+Noeud *Gauche(Noeud *N)
 {
   return N->gauche;
 }
@@ -113,9 +108,9 @@ Noeud* Gauche( Noeud* N )
  * @param N un pointeur vers un noeud valide.
  * @param SG le nouveau sous-arbre, éventuellement vide ou réduit à un noeud.
  */
-void ModifieGauche( Noeud* N, Arbre* SG )
+void ModifieGauche(Noeud *N, Arbre *SG)
 {
-  Detruire( N->gauche );
+  Detruire(N->gauche);
   N->gauche = SG;
 }
 
@@ -125,7 +120,7 @@ void ModifieGauche( Noeud* N, Arbre* SG )
  *
  * @param N un pointeur vers un noeud valide.
  */
-Noeud* Droit( Noeud* N )
+Noeud *Droit(Noeud *N)
 {
   return N->droit;
 }
@@ -137,9 +132,9 @@ Noeud* Droit( Noeud* N )
  * @param N un pointeur vers un noeud valide.
  * @param SD le nouveau sous-arbre, éventuellement vide ou réduit à un noeud.
  */
-void ModifieDroit( Noeud* N, Arbre* SD )
+void ModifieDroit(Noeud *N, Arbre *SD)
 {
-  Detruire( N->droit );
+  Detruire(N->droit);
   N->droit = SD;
 }
 
@@ -150,7 +145,29 @@ void ModifieDroit( Noeud* N, Arbre* SD )
  *
  * @param N un pointeur vers un noeud valide.
  */
-Donnee* Valeur( Noeud* N )
+Donnee *Valeur(Noeud *N)
 {
-  return & N->data;
+  return &N->data;
 }
+
+// void mediane_selon_axe(Donnee *T, int i, int j, int a)
+// {
+// }
+
+// Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
+// {
+//   Arbre *A;
+//   Point p;
+//   int m;
+//   if (i > j)
+//     return NULL;
+//   if (i == j)
+//     return Creer0(&T[i]);
+
+//   mediane_selon_axe(T, i, j, a);
+//   m = (i + j) / 2;
+//   A = Creer0(&T[m]);
+//   ModifieGauche(A, KDT_Creer(T, i, m - 1, (a + 1) % DIM));
+//   ModifieDroit(A, KDT_Creer(T, m + 1, j, (a + 1) % DIM));
+//   return A;
+// }
