@@ -31,6 +31,8 @@ typedef struct SContexte
 // Pas de temps en s pour le réaffichage
 #define DT_AFF 0.02
 
+#define R_OBSTACLE 0.05
+
 //-----------------------------------------------------------------------------
 // Déclaration des fonctions
 //-----------------------------------------------------------------------------
@@ -125,9 +127,17 @@ void calculDynamique(Contexte *pCtxt);
 void deplaceTout(Contexte *pCtxt);
 
 /**
-   Déplace une particule en fonction de sa vitesse. Devra s'occuper
-   des collisions plus tard.
-*/
+ * Calculer la nouvelle position et la vitesse d'une particule après une collision
+ *
+ * @param p la particule à rebondir.
+ * @param center le centre du cercle
+ * @param r rayon du cercle
+ * @param att le coefficient de restitution.
+ *
+ * @return La nouvelle particule.
+ */
+Particule calculRebond(Particule p, Point center, double r, double att);
+
 void deplaceParticule(Contexte *pCtxt, Particule *p);
 
 /**
@@ -193,7 +203,7 @@ on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data)
   }
 
   // Affiche les obstacles en noir.
-  cairo_set_source_rgb(cr, 0, 0, 1);
+  cairo_set_source_rgb(cr, 0, 0, 0);
   for (int i = 0; i < TabObstacles_nb(ptrO); ++i)
   {
     drawObstacle(pCtxt, cr, TabObstacles_get(ptrO, i));
@@ -442,9 +452,48 @@ void calculDynamique(Contexte *pCtxt)
   }
 }
 
+Particule calculRebond(Particule p, Point center, double r, double att)
+{
+  Point xd, v;
+  // Calcule la nouvelle position xd (sans collision) et le vecteur vitesse.
+  xd.x[0] = p.x[0] + DT * p.v[0];
+  xd.x[1] = p.x[1] + DT * p.v[1];
+  v.x[0] = p.v[0];
+  v.x[1] = p.v[1];
+  Point u = Point_normalize(Point_sub(xd, center));
+  double l = Point_norm(Point_sub(xd, center));
+  Point xm = Point_add(center, Point_mul(r + att * (r - l), u));
+  double proj_v = Point_dot(v, u);
+  // réalise le rebond si la particule est bien en train de rentrer dans l'obstacle.
+  if (proj_v < 0.0)
+    v = Point_sub(v, Point_mul(2.0 * proj_v, u));
+  Particule p_out = p;
+  p_out.x[0] = xm.x[0];
+  p_out.x[1] = xm.x[1];
+  p_out.v[0] = att * v.x[0];
+  p_out.v[1] = att * v.x[1];
+  return p_out;
+}
+
 void deplaceParticule(Contexte *pCtxt, Particule *p)
 {
   /* Déplace p en supposant qu'il n'y a pas de collision. */
+  Point pp;
+  pp.x[0] = p->x[0];
+  pp.x[1] = p->x[1];
+
+  Obstacle o;
+  Point q;
+  for (int i = 0; i < pCtxt->TabO.nb; i++)
+  {
+    o = TabObstacles_get(&pCtxt->TabO, i);
+    q.x[0] = o.x[0];
+    q.x[1] = o.x[1];
+    if (Point_distance(q, pp) < R_OBSTACLE)
+    {
+      *p = calculRebond(*p, q, o.r, o.att);
+    }
+  }
   p->x[0] += DT * p->v[0];
   p->x[1] += DT * p->v[1];
 }
