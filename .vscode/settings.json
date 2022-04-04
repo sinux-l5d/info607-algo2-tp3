@@ -4,5 +4,6 @@
         "*.tcc": "c",
         "istream": "c",
         "functional": "c"
-    }
+    },
+    "docwriter.language": "French"
 }
