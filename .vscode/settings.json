@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "bit": "c",
+        "*.tcc": "c",
+        "istream": "c",
+        "functional": "c"
+    }
+}
