@@ -5,6 +5,7 @@
 #include "points.h"
 #include "particules.h"
 #include "forces.h"
+#include "obstacles.h"
 
 //-----------------------------------------------------------------------------
 // Déclaration des types
@@ -19,6 +20,7 @@ typedef struct SContexte
   int height;
   GtkWidget *drawing_area;
   TabParticules TabP;
+  TabObstacles TabO;
   Force forces[NB_FORCES];
   GtkWidget *label_nb;
   GtkWidget *label_distance;
@@ -41,6 +43,9 @@ GtkWidget *creerIHM(Contexte *pCtxt);
    c'est la réaction principale qui va redessiner tout.
 */
 gboolean on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data);
+
+/* Fonction appelée lorsque l'utilisateur clique sur la fenêtre. */
+gboolean mouse_clic_reaction(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
 /**
    Fait la conversion coordonnées réelles de \a p vers coordonnées de la zone de dessin.
@@ -74,6 +79,8 @@ Point drawingAreaPoint2Point(Contexte *pCtxt, Point p);
    @param p un point dans la zone de dessin.
  */
 void drawParticule(Contexte *pCtxt, cairo_t *cr, Particule p);
+
+void drawObstacle(Contexte *pCtxt, cairo_t *cr, Obstacle o);
 
 /**
    Fonction de base qui affiche un disque de centre (x,y) et de rayon r via cairo.
@@ -149,6 +156,7 @@ int main(int argc,
 {
   Contexte context;
   TabParticules_init(&context.TabP);
+  TabObstacles_init(&context.TabO);
 
   /* Passe les arguments à GTK, pour qu'il extrait ceux qui le concernent. */
   gtk_init(&argc, &argv);
@@ -167,6 +175,7 @@ on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data)
   // c'est la réaction principale qui va redessiner tout.
   Contexte *pCtxt = (Contexte *)data;
   TabParticules *ptrP = &(pCtxt->TabP);
+  TabObstacles *ptrO = &(pCtxt->TabO);
   // c'est la structure qui permet d'afficher dans une zone de dessin
   // via Cairo
   GdkWindow *window = gtk_widget_get_window(widget);
@@ -181,6 +190,13 @@ on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data)
   for (int i = 0; i < TabParticules_nb(ptrP); ++i)
   {
     drawParticule(pCtxt, cr, TabParticules_get(ptrP, i));
+  }
+
+  // Affiche les obstacles en noir.
+  cairo_set_source_rgb(cr, 0, 0, 1);
+  for (int i = 0; i < TabObstacles_nb(ptrO); ++i)
+  {
+    drawObstacle(pCtxt, cr, TabObstacles_get(ptrO, i));
   }
 
   // On a fini, on peut détruire la structure.
@@ -222,6 +238,16 @@ void drawParticule(Contexte *pCtxt, cairo_t *cr, Particule p)
   drawPoint(cr, q.x[0], q.x[1], 1.5 * sqrt(p.m));
 }
 
+void drawObstacle(Contexte *pCtxt, cairo_t *cr, Obstacle o)
+{
+  Point pp;
+  pp.x[0] = o.x[0];
+  pp.x[1] = o.x[1];
+
+  Point q = point2DrawingAreaPoint(pCtxt, pp);
+  drawPoint(cr, q.x[0], q.x[1], length2DrawingAreaLength(pCtxt, o.r));
+}
+
 void drawPoint(cairo_t *cr, double x, double y, double r)
 {
   cairo_arc(cr, x, y, r, 0.0, 2.0 * 3.14159626);
@@ -233,6 +259,22 @@ void drawLine(cairo_t *cr, Point p, Point q)
   cairo_move_to(cr, p.x[0], p.x[1]);
   cairo_line_to(cr, q.x[0], q.x[1]);
   cairo_stroke(cr);
+}
+
+gboolean mouse_clic_reaction(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+  Contexte *pCtxt = (Contexte *)data;
+  int button = event->button; // 1 is left button
+  if (button != 1)
+    return TRUE;
+  int x = event->x;
+  int y = event->y;
+  Point p = drawingAreaPoint2Point(pCtxt, (Point){.x[0] = x, .x[1] = y});
+  Obstacle o;
+  Obstacle_init(&o, 0.05, p.x[0], p.x[1], 0.6);
+  TabObstacles_ajoute(&pCtxt->TabO, o);
+
+  return TRUE;
 }
 
 /// Charge l'image donnée et crée l'interface.
@@ -276,6 +318,10 @@ GtkWidget *creerIHM(Contexte *pCtxt)
   g_signal_connect(button_quit, "clicked",
                    G_CALLBACK(gtk_main_quit),
                    NULL);
+  g_signal_connect(G_OBJECT(pCtxt->drawing_area), "button_press_event",
+                   G_CALLBACK(mouse_clic_reaction), pCtxt);
+  gtk_widget_set_events(pCtxt->drawing_area, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
+
   // Rajoute tout dans le conteneur vbox.
   gtk_container_add(GTK_CONTAINER(vbox1), hbox1);
   gtk_container_add(GTK_CONTAINER(vbox1), button_quit);

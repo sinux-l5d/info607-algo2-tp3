@@ -21,6 +21,8 @@ typedef struct STabObstacles
     Obstacle *obstacles; //< la liste d'obstacles
 } TabObstacles;
 
+void Obstacle_init(Obstacle *p, double r, double x, double y, double att);
+
 void TabObstacles_init(TabObstacles *tab);
 void TabObstacles_ajoute(TabObstacles *tab, Obstacle p);
 void TabObstacles_set(TabObstacles *tab, int i, Obstacle p);

@@ -5,6 +5,18 @@
 
 #include "obstacles.h"
 
+void Obstacle_init(Obstacle *p, double r, double x, double y, double att)
+{
+    p->type = DISQUE;
+    p->x[0] = x;
+    p->x[1] = y;
+    p->r = r;
+    p->att = att;
+    p->cr = 0;
+    p->cb = 0;
+    p->cg = 0;
+}
+
 void TabObstacles_init(TabObstacles *tab)
 {
     tab->taille = 10;
