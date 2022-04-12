@@ -9,8 +9,8 @@ GTKLIBS:=$(shell pkg-config --libs gtk+-3.0)
 
 all: main
 
-main: main.o points.o particules.o forces.o obstacles.o
-	$(LD) main.o points.o particules.o forces.o obstacles.o $(GTKLIBS) $(LIBS) -o main
+main: main.o points.o particules.o forces.o obstacles.o arbre.o
+	$(LD) main.o points.o particules.o forces.o obstacles.o arbre.o $(GTKLIBS) $(LIBS) -o main
 
 main.o: main.c
 	$(CC) -c $(CFLAGS) $(GTKCFLAGS) main.c -o main.o
@@ -26,6 +26,9 @@ obstacles.o: obstacles.c obstacles.h
 
 forces.o: forces.c forces.h 
 	$(CC) -c $(CFLAGS) $(GTKCFLAGS) forces.c -o forces.o
+
+arbre.o: arbre.c arbre.h
+	$(CC) -c $(CFLAGS) $(GTKCFLAGS) arbre.c -o arbre.o
 
 clean:
 	rm -f main *.o

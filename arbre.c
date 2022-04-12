@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "arbre.h"
 
 /**
@@ -48,7 +49,7 @@ void Detruire(Arbre *A)
  * @return un pointeur vers l'arbre créé (ie. un pointeur vers sa
  * racine).
  */
-extern Arbre *Creer0(Donnee *ptr_d)
+Arbre *Creer0(Donnee *ptr_d)
 {
   return Creer2(ptr_d, ArbreVide(), ArbreVide());
 }
@@ -85,7 +86,7 @@ Arbre *Creer2(Donnee *ptr_d, Arbre *G, Arbre *D)
  *
  * @param A un pointeur vers un arbre valide.
  */
-extern Noeud *Racine(Arbre *A)
+Noeud *Racine(Arbre *A)
 {
   return A;
 }
@@ -150,24 +151,49 @@ Donnee *Valeur(Noeud *N)
   return &N->data;
 }
 
-// void mediane_selon_axe(Donnee *T, int i, int j, int a)
-// {
-// }
+int compareAxeX(const void *ptr1, const void *ptr2)
+{
+  Obstacle *ob1 = (Obstacle *)ptr1;
+  Obstacle *ob2 = (Obstacle *)ptr2;
+  if (ob1->x[0] < ob2->x[0])
+    return -1;
+  if (ob1->x[0] > ob2->x[0])
+    return 1;
 
-// Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
-// {
-//   Arbre *A;
-//   Point p;
-//   int m;
-//   if (i > j)
-//     return NULL;
-//   if (i == j)
-//     return Creer0(&T[i]);
+  return 0;
+}
 
-//   mediane_selon_axe(T, i, j, a);
-//   m = (i + j) / 2;
-//   A = Creer0(&T[m]);
-//   ModifieGauche(A, KDT_Creer(T, i, m - 1, (a + 1) % DIM));
-//   ModifieDroit(A, KDT_Creer(T, m + 1, j, (a + 1) % DIM));
-//   return A;
-// }
+int compareAxeY(const void *ptr1, const void *ptr2)
+{
+  Obstacle *ob1 = (Obstacle *)ptr1;
+  Obstacle *ob2 = (Obstacle *)ptr2;
+  if (ob1->x[1] < ob2->x[1])
+    return -1;
+  if (ob1->x[1] > ob2->x[1])
+    return 1;
+
+  return 0;
+}
+
+Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
+{
+  int m;
+  if (i > j)
+    return ArbreVide();
+  if (i == j)
+    return Creer0(&T[i]);
+
+  // mediane_selon_axe(T, i, j, a);
+  // trie par axe en fonction de la profondeur de l'arbre
+
+  if (a % DIM == 0)
+    qsort(&T[i], j - i + 1, sizeof(Donnee), compareAxeX);
+  else
+    qsort(&T[i], j - i + 1, sizeof(Donnee), compareAxeY);
+
+  m = (i + j) / 2;
+  // A = Creer0(&T[m]);
+  // ModifieGauche(A, KDT_Creer(T, i, m - 1, (a - 1) % DIM));
+  // ModifieDroit(A, KDT_Creer(T, m + 1, j, (a + 1) % DIM));
+  return Creer2(&T[m], KDT_Creer(T, i, m - 1, (a + 1) % DIM), KDT_Creer(T, m + 1, j, (a + 1) % DIM));
+}

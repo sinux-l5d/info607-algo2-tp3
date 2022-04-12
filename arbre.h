@@ -2,7 +2,6 @@
 #define _ARBRE_H_
 #include "obstacles.h"
 
-/* A vous de changer cela. */
 typedef Obstacle Donnee;
 
 /**

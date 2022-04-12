@@ -5,7 +5,8 @@
 #include "points.h"
 #include "particules.h"
 #include "forces.h"
-#include "obstacles.h"
+#include "arbre.h"
+// #include "obstacles.h"
 
 //-----------------------------------------------------------------------------
 // Déclaration des types
@@ -22,6 +23,7 @@ typedef struct SContexte
   TabParticules TabP;
   TabObstacles TabO;
   Force forces[NB_FORCES];
+  Arbre *kdtree;
   GtkWidget *label_nb;
   GtkWidget *label_distance;
 } Contexte;
@@ -140,6 +142,8 @@ Particule calculRebond(Particule p, Point center, double r, double att);
 
 void deplaceParticule(Contexte *pCtxt, Particule *p);
 
+void viewerKDTree(Contexte *pCtxt, cairo_t *cr, Noeud *N, Point bg, Point hd, int a);
+
 /**
   Fontaine pour créer une particule à la position (\a x, \a y), avec
   la vitesse (\a vx, \a vy) et la masse \a m.
@@ -167,6 +171,7 @@ int main(int argc,
   Contexte context;
   TabParticules_init(&context.TabP);
   TabObstacles_init(&context.TabO);
+  context.kdtree = ArbreVide();
 
   /* Passe les arguments à GTK, pour qu'il extrait ceux qui le concernent. */
   gtk_init(&argc, &argv);
@@ -208,6 +213,10 @@ on_draw(GtkWidget *widget, GdkEventExpose *event, gpointer data)
   {
     drawObstacle(pCtxt, cr, TabObstacles_get(ptrO, i));
   }
+
+  Point bg = {{-10.0, -10.0}};
+  Point hd = {{10.0, 10.0}};
+  viewerKDTree(pCtxt, cr, Racine(pCtxt->kdtree), bg, hd, 0);
 
   // On a fini, on peut détruire la structure.
   gdk_window_end_draw_frame(window, drawingContext);
@@ -282,7 +291,11 @@ gboolean mouse_clic_reaction(GtkWidget *widget, GdkEventButton *event, gpointer 
   Point p = drawingAreaPoint2Point(pCtxt, (Point){.x[0] = x, .x[1] = y});
   Obstacle o;
   Obstacle_init(&o, 0.05, p.x[0], p.x[1], 0.6);
+
   TabObstacles_ajoute(&pCtxt->TabO, o);
+  Detruire(pCtxt->kdtree);
+  pCtxt->kdtree = NULL;
+  pCtxt->kdtree = KDT_Creer(pCtxt->TabO.obstacles, 0, pCtxt->TabO.nb - 1, 0);
 
   return TRUE;
 }
@@ -516,5 +529,36 @@ void deplaceTout(Contexte *pCtxt)
       TabParticules_supprime(P, i);
     else
       ++i;
+  }
+}
+
+void viewerKDTree(Contexte *pCtxt, cairo_t *cr, Noeud *N, Point bg, Point hd, int a)
+{
+  if (N != ArbreVide())
+  {
+    int b = (a + 1) % DIM;
+    Obstacle *q = Valeur(N);
+    Point p, p1, p2;
+    p1.x[a] = q->x[a];
+    p1.x[b] = bg.x[b];
+    p2.x[a] = q->x[a];
+    p2.x[b] = hd.x[b];
+    cairo_set_source_rgb(cr, 0.0, 1.0, 1.0);
+    Point draw_p1 = point2DrawingAreaPoint(pCtxt, p1);
+    Point draw_p2 = point2DrawingAreaPoint(pCtxt, p2);
+    cairo_move_to(cr, draw_p1.x[0], draw_p1.x[1]);
+    cairo_line_to(cr, draw_p2.x[0], draw_p2.x[1]);
+    cairo_stroke(cr);
+    cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+    p.x[0] = q->x[0];
+    p.x[1] = q->x[1];
+    Point dp = point2DrawingAreaPoint(pCtxt, p);
+    drawPoint(cr, dp.x[0], dp.x[1], 3);
+    Point hd2 = hd;
+    hd2.x[a] = q->x[a];
+    Point bg2 = bg;
+    bg2.x[a] = q->x[a];
+    viewerKDTree(pCtxt, cr, Gauche(N), bg, hd2, b);
+    viewerKDTree(pCtxt, cr, Droit(N), bg2, hd, b);
   }
 }
