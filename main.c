@@ -2,7 +2,7 @@
 #include <math.h>
 #include <assert.h>
 #include <gtk/gtk.h>
-#include "points.h"
+// #include "points.h"
 #include "particules.h"
 #include "forces.h"
 #include "arbre.h"
@@ -497,18 +497,29 @@ void deplaceParticule(Contexte *pCtxt, Particule *p)
 
   Obstacle o;
   Point q;
-  for (int i = 0; i < pCtxt->TabO.nb; i++)
+
+  TabObstacles F; // obstacles potentiels;
+  TabObstacles_init(&F);
+
+  // printf("Particule testé : %f %f\n", p->x[0], p->x[1]);
+
+  KDT_PointsDansBoule(&F, Racine(pCtxt->kdtree), &pp, 0.05, 0);
+  // TabObstacles_affiche(&F);
+
+  for (int i = 0; i < F.nb; i++)
   {
-    o = TabObstacles_get(&pCtxt->TabO, i);
+    o = F.obstacles[i];
     q.x[0] = o.x[0];
     q.x[1] = o.x[1];
-    if (Point_distance(q, pp) < R_OBSTACLE)
+    if (Point_distance(q, pp) < o.r)
     {
       *p = calculRebond(*p, q, o.r, o.att);
     }
   }
   p->x[0] += DT * p->v[0];
   p->x[1] += DT * p->v[1];
+
+  TabObstacles_termine(&F); // pour éviter les fuites mémoire.
 }
 
 void deplaceTout(Contexte *pCtxt)

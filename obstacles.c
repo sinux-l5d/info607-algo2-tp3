@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "obstacles.h"
 
@@ -50,7 +51,7 @@ int TabObstacles_nb(TabObstacles *tab)
     return tab->nb;
 }
 
-void TabObstable_termine(TabObstacles *tab)
+void TabObstacles_termine(TabObstacles *tab)
 {
     free(tab->obstacles);
     tab->nb = 0;
@@ -67,4 +68,23 @@ void TabObstacles_agrandir(TabObstacles *tab)
 {
     tab->taille *= 2;
     tab->obstacles = (Obstacle *)realloc(tab->obstacles, tab->taille * sizeof(Obstacle));
+}
+
+void TabObstacles_affiche(TabObstacles *tab)
+{
+    int i;
+    printf("TAB OBSTACLES =========================\n");
+    for (i = 0; i < tab->nb; i++)
+    {
+        printf("Obstacle %d :\n", i);
+        printf("\ttype : %d\n", tab->obstacles[i].type);
+        printf("\tr : %f\n", tab->obstacles[i].r);
+        printf("\tx : %f\n", tab->obstacles[i].x[0]);
+        printf("\ty : %f\n", tab->obstacles[i].x[1]);
+        printf("\tatt : %f\n", tab->obstacles[i].att);
+        printf("\tcr : %f\n", tab->obstacles[i].cr);
+        printf("\tcb : %f\n", tab->obstacles[i].cb);
+        printf("\tcg : %f\n", tab->obstacles[i].cg);
+    }
+    printf("========================================\n");
 }

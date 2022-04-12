@@ -31,3 +31,4 @@ int TabObstacles_nb(TabObstacles *tab);
 void TabObstacles_termine(TabObstacles *tab);
 Obstacle *TabObstacles_ref(TabObstacles *tab, int i);
 void TabObstacles_agrandir(TabObstacles *tab);
+void TabObstacles_affiche(TabObstacles *tab);

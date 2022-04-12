@@ -197,3 +197,27 @@ Arbre *KDT_Creer(Donnee *T, int i, int j, int a)
   // ModifieDroit(A, KDT_Creer(T, m + 1, j, (a + 1) % DIM));
   return Creer2(&T[m], KDT_Creer(T, i, m - 1, (a + 1) % DIM), KDT_Creer(T, m + 1, j, (a + 1) % DIM));
 }
+
+// Ajoute dans le tableau d'obstacles F les obstacles de l'arbre
+// désigné par le noeud racine N qui sont à une distance inférieure à
+// r du point p. Le paramètre a désigne l'axe courant (0 ou 1) et
+// change à chaque niveau de récursion.
+void KDT_PointsDansBoule(TabObstacles *F, Noeud *N, Point *p, double r, int a)
+{
+
+  Point *q = malloc(sizeof(Point));
+  if (N == NULL)
+    return;
+
+  q->x[0] = Valeur(N)->x[0];
+  q->x[1] = Valeur(N)->x[1];
+
+  if (Point_distance(*p, *q) < r)
+    F->obstacles[F->nb++] = N->data;
+
+  if (p->x[a] <= q->x[a] + r)
+    KDT_PointsDansBoule(F, Gauche(N), p, r, (a + 1) % DIM);
+
+  if (p->x[a] >= q->x[a] - r)
+    KDT_PointsDansBoule(F, Droit(N), p, r, (a + 1) % DIM);
+}

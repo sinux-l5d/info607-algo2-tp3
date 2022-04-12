@@ -132,4 +132,6 @@ extern Donnee *Valeur(Noeud *N);
 
 extern Arbre *KDT_Creer(Donnee *T, int i, int j, int a);
 
+void KDT_PointsDansBoule(TabObstacles *F, Noeud *N, Point *p, double r, int a);
+
 #endif
